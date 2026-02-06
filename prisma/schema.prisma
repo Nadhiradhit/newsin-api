@@ -7,6 +7,7 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -14,6 +15,43 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  
+  id         String @id @unique @default(uuid(7))
+  email      String @unique
+  username   String @unique
+  name       String?
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  role       Role   @default(USER)
+  news       News[]
+
+  @@map("users")
+}
+
+model News {
+  id          String   @id @default(uuid(7))
+  id_category String
+  id_user     String
+  title       String
+  content     String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  category    Category @relation(fields: [id_category], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  author      User?     @relation(fields: [id_user], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("news")
+}
+
+model Category {
+  id          String   @id @default(uuid(7))
+  name        String   @unique
+  news        News[]
+
+  @@map("categories")
+}
+
+enum Role {
+  ADMIN
+  USER
 }
